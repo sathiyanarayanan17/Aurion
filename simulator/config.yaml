@@ -1,0 +1,63 @@
+mqtt:
+  broker_host: localhost
+  broker_port: 1883
+  topic_prefix: aurion/telemetry
+
+fleet:
+  num_chargers: 20
+  publish_interval_seconds: 5
+
+charger_profiles:
+  - name: tata_50kw
+    power_rating_kw: 50
+    voltage_range: [380, 420]
+    current_range: [0, 125]
+    normal_temperature_range: [35, 55]
+    connector_types: [CCS2, CHAdeMO]
+    failure_rate_per_day: 0.02
+
+  - name: statiq_30kw
+    power_rating_kw: 30
+    voltage_range: [220, 240]
+    current_range: [0, 80]
+    normal_temperature_range: [30, 50]
+    connector_types: [Type2]
+    failure_rate_per_day: 0.03
+
+  - name: chargenova_150kw
+    power_rating_kw: 150
+    voltage_range: [750, 850]
+    current_range: [0, 200]
+    normal_temperature_range: [40, 65]
+    connector_types: [CCS2]
+    failure_rate_per_day: 0.015
+
+fault_scenarios:
+  - name: thermal_runaway
+    description: "Gradual temperature rise leading to thermal shutdown"
+    duration_minutes: 30
+    pattern:
+      temperature_rise_rate: 1.5  # degrees per minute
+      voltage_fluctuation: 0.05  # 5% random variation
+      
+  - name: connector_degradation
+    description: "Intermittent connection drops before full failure"
+    duration_minutes: 60
+    pattern:
+      drop_probability_start: 0.05
+      drop_probability_end: 0.8
+      current_reduction: 0.3
+
+  - name: power_instability
+    description: "Voltage fluctuations from grid issues"
+    duration_minutes: 45
+    pattern:
+      voltage_std_multiplier: 5.0
+      brownout_probability: 0.1
+      
+  - name: firmware_crash
+    description: "Sudden unresponsive state after erratic readings"
+    duration_minutes: 10
+    pattern:
+      erratic_readings_duration_seconds: 120
+      null_probability_after: 1.0

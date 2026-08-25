@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Generated data (large files)
+prediction/data/*.parquet
+prediction/data/*.csv
+
+# Model artifacts (commit these selectively)
+prediction/model/*.pkl
+prediction/model/*.keras
+prediction/model/*.json
+
+# Docker volumes
+mosquitto_data/
+postgres_data/
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dashboard/dist/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
