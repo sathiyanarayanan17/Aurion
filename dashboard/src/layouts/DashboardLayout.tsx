@@ -1,16 +1,23 @@
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFleet } from '../context/FleetContext';
 import { FaultModal } from '../components/common/FaultModal';
 import {
   Activity, LayoutDashboard, Map, Server, Bell, BarChart3, Settings,
-  LogOut, Flame, Wifi, WifiOff, Search, Command
+  LogOut, Flame, Wifi, WifiOff, Sun, Moon, Clock
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export function DashboardLayout() {
-  const { alerts, chargers, isWsConnected, openFaultModal, activeTab, selectedChargerId } = useFleet();
+  const { alerts, chargers, isWsConnected, openFaultModal, activeTab, selectedChargerId, theme, setTheme } = useFleet();
   const navigate = useNavigate();
   const location = useLocation();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Live clock
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Sync context-based navigation with router
   useEffect(() => {
@@ -22,6 +29,9 @@ export function DashboardLayout() {
   const criticalCount = chargers.filter(c => c.risk_level === 'CRITICAL').length;
   const highCount = chargers.filter(c => c.risk_level === 'HIGH').length;
   const alertCount = alerts.length;
+  const activeChargers = chargers.filter(c => c.state === 'charging').length;
+
+  const isDark = theme === 'black' || theme === 'dark';
 
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Overview', end: true },
@@ -32,19 +42,33 @@ export function DashboardLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ fontFamily: 'var(--font-sans)' }}>
-      {/* Top Navigation Bar — Full Width */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-white/[0.06] bg-black/70 backdrop-blur-2xl">
-        <div className="h-full max-w-[1800px] mx-auto px-5 flex items-center justify-between">
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#060611] text-white' : 'bg-[#f4f4f8] text-slate-900'}`} style={{ fontFamily: 'var(--font-sans)' }}>
+
+      {/* Floating Background Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Gradient orbs */}
+        <div className={`absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full blur-[150px] ${isDark ? 'bg-cyan-900/15' : 'bg-cyan-200/30'}`} />
+        <div className={`absolute top-1/2 -left-60 w-[500px] h-[500px] rounded-full blur-[130px] ${isDark ? 'bg-violet-900/10' : 'bg-violet-200/20'}`} />
+        <div className={`absolute -bottom-40 right-1/3 w-[400px] h-[400px] rounded-full blur-[120px] ${isDark ? 'bg-blue-900/10' : 'bg-blue-200/20'}`} />
+
+        {/* Grid pattern */}
+        <div className={`absolute inset-0 ${isDark ? 'opacity-[0.03]' : 'opacity-[0.04]'}`}
+          style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+      </div>
+
+      {/* Top Navigation Bar */}
+      <header className={`fixed top-0 left-0 right-0 z-50 h-14 border-b backdrop-blur-2xl ${isDark ? 'border-white/[0.06] bg-[#060611]/80' : 'border-black/[0.06] bg-white/80'}`}>
+        <div className="h-full w-full px-6 flex items-center justify-between">
           {/* Left: Brand + Nav */}
-          <div className="flex items-center gap-6">
-            {/* Brand */}
-            <div className="flex items-center gap-2.5 pr-6 border-r border-white/[0.06]">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center">
+          <div className="flex items-center gap-5">
+            {/* Brand — Clickable to landing */}
+            <Link to="/" className="flex items-center gap-2.5 pr-5 border-r border-current/10 group">
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-shadow">
                 <Activity className="w-4 h-4 text-white" />
               </div>
               <span className="text-base font-black tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>Aurion</span>
-            </div>
+            </Link>
 
             {/* Nav Pills */}
             <nav className="flex items-center gap-0.5">
@@ -56,8 +80,8 @@ export function DashboardLayout() {
                   className={({ isActive }) =>
                     `relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
                       isActive
-                        ? 'bg-white/[0.08] text-white'
-                        : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]'
+                        ? isDark ? 'bg-white/[0.08] text-white' : 'bg-black/[0.06] text-black'
+                        : isDark ? 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]' : 'text-slate-500 hover:text-slate-800 hover:bg-black/[0.03]'
                     }`
                   }
                 >
@@ -73,25 +97,36 @@ export function DashboardLayout() {
             </nav>
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-3">
-            {/* Live Status */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04]">
+          {/* Right: Status + Actions */}
+          <div className="flex items-center gap-2.5">
+            {/* Live clock */}
+            <div className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+              <Clock className="w-3 h-3" />
+              {currentTime.toLocaleTimeString()}
+            </div>
+
+            {/* Live indicator */}
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md ${isDark ? 'bg-white/[0.04]' : 'bg-black/[0.03]'}`}>
               {isWsConnected ? (
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               ) : (
                 <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
               )}
-              <span className="text-[11px] text-slate-400 font-medium">
-                {isWsConnected ? 'Live' : 'Offline'}
+              <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {isWsConnected ? `${activeChargers} active` : 'Offline'}
               </span>
             </div>
 
             {/* Critical badge */}
             {criticalCount > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 animate-pulse">
                 <span className="text-[11px] text-red-400 font-bold">{criticalCount} Critical</span>
+              </div>
+            )}
+
+            {highCount > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-500/10 border border-orange-500/20">
+                <span className="text-[11px] text-orange-400 font-bold">{highCount} High</span>
               </div>
             )}
 
@@ -104,30 +139,52 @@ export function DashboardLayout() {
               <span className="hidden sm:inline">Inject</span>
             </button>
 
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(isDark ? 'light' : 'black')}
+              className={`p-2 rounded-lg transition-colors ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/[0.06]' : 'text-slate-500 hover:text-black hover:bg-black/[0.05]'}`}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             {/* Settings */}
             <NavLink
               to="/dashboard/settings"
               className={({ isActive }) =>
-                `p-2 rounded-lg transition-colors ${isActive ? 'bg-white/[0.08] text-white' : 'text-slate-500 hover:text-white hover:bg-white/[0.04]'}`
+                `p-2 rounded-lg transition-colors ${isActive ? (isDark ? 'bg-white/[0.08] text-white' : 'bg-black/[0.06] text-black') : (isDark ? 'text-slate-500 hover:text-white hover:bg-white/[0.04]' : 'text-slate-500 hover:text-black hover:bg-black/[0.03]')}`
               }
             >
               <Settings className="w-4 h-4" />
             </NavLink>
 
             {/* Profile */}
-            <button onClick={() => navigate('/')} className="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-[10px] font-bold ml-1">
+            <button onClick={() => navigate('/')} className="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white ml-1 hover:shadow-lg hover:shadow-cyan-500/30 transition-shadow">
               OP
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content — Full Width with Edge-to-Edge Feel */}
-      <main className="pt-14 min-h-screen">
-        <div className="max-w-[1800px] mx-auto px-5 py-6">
+      {/* Main Content — TRUE Full Width */}
+      <main className="pt-14 min-h-screen relative z-10">
+        <div className="w-full px-6 py-6">
           <Outlet />
         </div>
       </main>
+
+      {/* Floating Stats Bar — Bottom */}
+      <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 px-5 py-2.5 rounded-2xl border backdrop-blur-2xl shadow-2xl ${isDark ? 'bg-[#0a0a1a]/90 border-white/[0.06] shadow-black/50' : 'bg-white/90 border-black/[0.06] shadow-black/10'}`}>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{chargers.length} Stations</span>
+        </div>
+        <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+        <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{activeChargers} Charging</span>
+        <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+        <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{(chargers.reduce((s, c) => s + c.power_kw, 0) / 1000).toFixed(1)} MW</span>
+        <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+        <span className={`text-[11px] font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>97.4% Uptime</span>
+      </div>
 
       {/* Fault Modal */}
       <FaultModal />
