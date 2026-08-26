@@ -39,7 +39,7 @@ export const Header: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-white font-sans">
+              <span className="text-xl font-black tracking-tight text-white" style={{ fontFamily: 'var(--font-display)' }}>
                 AURION
               </span>
               <span className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[10px] font-bold font-mono tracking-widest text-cyan-400 border border-cyan-500/30">

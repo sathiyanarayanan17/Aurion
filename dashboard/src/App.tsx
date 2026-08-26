@@ -1,45 +1,40 @@
-import React from 'react';
-import { FleetProvider, useFleet } from './context/FleetContext';
-import { Header } from './components/common/Header';
-import { MapView } from './components/map/MapView';
-import { FleetOverview } from './components/fleet/FleetOverview';
-import { ChargerDetail } from './components/detail/ChargerDetail';
-import { AlertsFeed } from './components/alerts/AlertsFeed';
-import { FaultModal } from './components/common/FaultModal';
-
-const DashboardContent: React.FC = () => {
-  const { activeTab, theme } = useFleet();
-
-  return (
-    <div className={`min-h-screen font-sans transition-colors ${
-      theme === 'black'
-        ? 'bg-black text-slate-100'
-        : theme === 'dark'
-        ? 'bg-slate-950 text-slate-100'
-        : 'bg-slate-50 text-slate-900'
-    }`}>
-      {/* Header */}
-      <Header />
-
-      {/* Main View Area */}
-      <main className="transition-all duration-300">
-        {activeTab === 'map' && <MapView />}
-        {activeTab === 'fleet' && <FleetOverview />}
-        {activeTab === 'detail' && <ChargerDetail />}
-        {activeTab === 'alerts' && <AlertsFeed />}
-      </main>
-
-      {/* Global Fault Injection Sandbox Modal */}
-      <FaultModal />
-    </div>
-  );
-};
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { FleetProvider } from './context/FleetContext';
+import { LandingPage } from './pages/LandingPage';
+import { LoginPage } from './pages/LoginPage';
+import { DashboardLayout } from './layouts/DashboardLayout';
+import { OverviewPage } from './pages/dashboard/OverviewPage';
+import { MapPage } from './pages/dashboard/MapPage';
+import { FleetPage } from './pages/dashboard/FleetPage';
+import { AlertsPage } from './pages/dashboard/AlertsPage';
+import { ChargerDetailPage } from './pages/dashboard/ChargerDetailPage';
+import { AnalyticsPage } from './pages/dashboard/AnalyticsPage';
+import { SettingsPage } from './pages/dashboard/SettingsPage';
 
 export function App() {
   return (
-    <FleetProvider>
-      <DashboardContent />
-    </FleetProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Public Pages */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Dashboard (Protected) */}
+        <Route path="/dashboard" element={
+          <FleetProvider>
+            <DashboardLayout />
+          </FleetProvider>
+        }>
+          <Route index element={<OverviewPage />} />
+          <Route path="map" element={<MapPage />} />
+          <Route path="fleet" element={<FleetPage />} />
+          <Route path="alerts" element={<AlertsPage />} />
+          <Route path="charger/:chargerId" element={<ChargerDetailPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
