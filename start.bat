@@ -7,7 +7,7 @@ echo  ║   Predictive EV Charger Health Platform         ║
 echo  ╠══════════════════════════════════════════════════╣
 echo  ║  API Server:  http://localhost:8000              ║
 echo  ║  API Docs:    http://localhost:8000/docs         ║
-echo  ║  Dashboard:   http://localhost:3000              ║
+echo  ║  Dashboard:   http://localhost:5173              ║
 echo  ║                                                  ║
 echo  ║  Press Ctrl+C to stop                           ║
 echo  ╚══════════════════════════════════════════════════╝
