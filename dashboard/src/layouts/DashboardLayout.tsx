@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFleet } from '../context/FleetContext';
 import { FaultModal } from '../components/common/FaultModal';
+import { GuidedDemo } from '../components/common/GuidedDemo';
 import { CommandPalette } from '../components/common/CommandPalette';
 import { NotificationCenter } from '../components/common/NotificationCenter';
 import {
@@ -271,6 +272,9 @@ export function DashboardLayout() {
         <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
         <span className={`text-[11px] font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>97.4% Uptime</span>
       </div>
+
+      {/* Guided Demo */}
+      <GuidedDemo />
 
       {/* Fault Modal */}
       <FaultModal />
