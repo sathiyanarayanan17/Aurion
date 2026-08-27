@@ -1,11 +1,14 @@
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFleet } from '../context/FleetContext';
 import { FaultModal } from '../components/common/FaultModal';
+import { CommandPalette } from '../components/common/CommandPalette';
+import { NotificationCenter } from '../components/common/NotificationCenter';
 import {
   Activity, LayoutDashboard, Map, Server, Bell, BarChart3, Settings,
-  LogOut, Flame, Wifi, WifiOff, Sun, Moon, Clock
+  LogOut, Flame, Wifi, WifiOff, Sun, Moon, Clock, ChevronDown,
+  IndianRupee, Wrench, Brain, GitCompare, Play, Filter, Shield, FileDown
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function DashboardLayout() {
   const { alerts, chargers, isWsConnected, openFaultModal, activeTab, selectedChargerId, theme, setTheme } = useFleet();
@@ -33,12 +36,46 @@ export function DashboardLayout() {
 
   const isDark = theme === 'black' || theme === 'dark';
 
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  // Close More dropdown on outside click or Escape
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [moreOpen]);
+
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Overview', end: true },
     { to: '/dashboard/map', icon: Map, label: 'Map' },
     { to: '/dashboard/fleet', icon: Server, label: 'Fleet' },
     { to: '/dashboard/alerts', icon: Bell, label: 'Alerts', badge: alertCount },
     { to: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
+  ];
+
+  const moreItems = [
+    { to: '/dashboard/revenue', icon: IndianRupee, label: 'Revenue Impact' },
+    { to: '/dashboard/maintenance', icon: Wrench, label: 'Maintenance' },
+    { to: '/dashboard/explainability', icon: Brain, label: 'Explainability' },
+    { to: '/dashboard/compare', icon: GitCompare, label: 'Compare' },
+    { to: '/dashboard/timeline', icon: Clock, label: 'Timeline' },
+    { to: '/dashboard/replay', icon: Play, label: 'Data Replay' },
+    { to: '/dashboard/rules', icon: Filter, label: 'Alert Rules' },
+    { to: '/dashboard/sla', icon: Shield, label: 'SLA Monitor' },
+    { to: '/dashboard/export', icon: FileDown, label: 'Export' },
   ];
 
   return (
@@ -94,6 +131,44 @@ export function DashboardLayout() {
                   )}
                 </NavLink>
               ))}
+
+              {/* More Dropdown */}
+              <div className="relative" ref={moreRef}>
+                <button
+                  onClick={() => setMoreOpen(!moreOpen)}
+                  className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
+                    moreOpen || moreItems.some(item => location.pathname === item.to)
+                      ? isDark ? 'bg-white/[0.08] text-white' : 'bg-black/[0.06] text-black'
+                      : isDark ? 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]' : 'text-slate-500 hover:text-slate-800 hover:bg-black/[0.03]'
+                  }`}
+                >
+                  <span>More</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Panel */}
+                {moreOpen && (
+                  <div className={`absolute top-full left-0 mt-2 w-56 rounded-xl border p-2 backdrop-blur-2xl shadow-2xl z-[100] ${isDark ? 'bg-[#0a0a1a]/95 border-white/[0.08] shadow-black/50' : 'bg-white/95 border-black/[0.08] shadow-black/10'}`}>
+                    {moreItems.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setMoreOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                            isActive
+                              ? isDark ? 'bg-white/[0.08] text-white' : 'bg-black/[0.06] text-black'
+                              : isDark ? 'text-slate-400 hover:text-white hover:bg-white/[0.05]' : 'text-slate-500 hover:text-black hover:bg-black/[0.04]'
+                          }`
+                        }
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
 
@@ -138,6 +213,9 @@ export function DashboardLayout() {
               <Flame className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Inject</span>
             </button>
+
+            {/* Notification Center */}
+            <NotificationCenter />
 
             {/* Theme toggle */}
             <button
@@ -188,6 +266,9 @@ export function DashboardLayout() {
 
       {/* Fault Modal */}
       <FaultModal />
+
+      {/* Command Palette */}
+      <CommandPalette />
     </div>
   );
 }
