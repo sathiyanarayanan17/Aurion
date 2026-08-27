@@ -6,7 +6,8 @@ import { NotificationCenter } from '../components/common/NotificationCenter';
 import {
   Activity, LayoutDashboard, Map, Server, Bell, BarChart3, Settings,
   LogOut, Flame, Wifi, WifiOff, Sun, Moon, Clock, ChevronDown,
-  IndianRupee, Wrench, Brain, GitCompare, Play, Filter, Shield, FileDown
+  IndianRupee, Wrench, Brain, GitCompare, Play, Filter, Shield, FileDown,
+  MessageSquare, GitBranch, Fingerprint, CloudRain, Bot, Hourglass, BatteryCharging
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -76,6 +77,13 @@ export function DashboardLayout() {
     { to: '/dashboard/rules', icon: Filter, label: 'Alert Rules' },
     { to: '/dashboard/sla', icon: Shield, label: 'SLA Monitor' },
     { to: '/dashboard/export', icon: FileDown, label: 'Export' },
+    { to: '/dashboard/query', icon: MessageSquare, label: 'Fleet Query' },
+    { to: '/dashboard/cascade', icon: GitBranch, label: 'Cascade Sim' },
+    { to: '/dashboard/fingerprint', icon: Fingerprint, label: 'Fingerprints' },
+    { to: '/dashboard/weather', icon: CloudRain, label: 'Weather' },
+    { to: '/dashboard/healing', icon: Bot, label: 'Self-Healing' },
+    { to: '/dashboard/aging', icon: Hourglass, label: 'Aging & RUL' },
+    { to: '/dashboard/energy', icon: BatteryCharging, label: 'Energy' },
   ];
 
   return (

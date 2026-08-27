@@ -19,6 +19,13 @@ import { MaintenancePage } from './pages/dashboard/MaintenancePage';
 import { AlertRulesPage } from './pages/dashboard/AlertRulesPage';
 import { SLAPage } from './pages/dashboard/SLAPage';
 import { ExportPage } from './pages/dashboard/ExportPage';
+import { NLQueryPage } from './pages/dashboard/NLQueryPage';
+import { ChainReactionPage } from './pages/dashboard/ChainReactionPage';
+import { FingerprintPage } from './pages/dashboard/FingerprintPage';
+import { WeatherPage } from './pages/dashboard/WeatherPage';
+import { SelfHealingPage } from './pages/dashboard/SelfHealingPage';
+import { AgingPage } from './pages/dashboard/AgingPage';
+import { EnergyPage } from './pages/dashboard/EnergyPage';
 
 export function App() {
   return (
@@ -49,6 +56,13 @@ export function App() {
           <Route path="rules" element={<AlertRulesPage />} />
           <Route path="sla" element={<SLAPage />} />
           <Route path="export" element={<ExportPage />} />
+          <Route path="query" element={<NLQueryPage />} />
+          <Route path="cascade" element={<ChainReactionPage />} />
+          <Route path="fingerprint" element={<FingerprintPage />} />
+          <Route path="weather" element={<WeatherPage />} />
+          <Route path="healing" element={<SelfHealingPage />} />
+          <Route path="aging" element={<AgingPage />} />
+          <Route path="energy" element={<EnergyPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
